@@ -19,7 +19,7 @@ public class LeaderCandidate extends ConsensusApplication {
     }
 
     @Override
-    public void commitConsensus(Value value) {
+    public void commitAgreedValue(Value value) {
         System.out.println(value.getMember("value"));
     }
 
