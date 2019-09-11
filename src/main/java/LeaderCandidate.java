@@ -23,33 +23,35 @@ public class LeaderCandidate extends ConsensusApplication {
         System.out.println(value.getMember("value"));
     }
 
-    public static void electLeader(String nodeId, int instanceCount, String kafkaServerAddress){
+    public static void electLeader(String nodeId, int instanceCount, String kafkaServerAddress, String kafkaTopic){
 
-        LeaderCandidate leaderCandidate = new LeaderCandidate(nodeId, "var clientRanks = [];result = {consensus:false, value:null};",
-"if(Object.keys(clientRanks).length==" + instanceCount + "){" +
+        LeaderCandidate leaderCandidate = new LeaderCandidate(nodeId, "var nodeRanks = [];result = {consensus:false, value:null};",
+"if(Object.keys(nodeRanks).length==" + instanceCount + "){" +
                     "result.consensus=true;" +
                     "var leader = null;"+
                     "var maxRank = 0;"+
-                    "for (var i = 0; i < clientRanks.length; i++) {"+
-                        "if(clientRanks[i].rank > maxRank){"+
-                            "result.value = clientRanks[i].client;" +
-                            "maxRank = clientRanks[i].rank;" +
+                    "for (var i = 0; i < nodeRanks.length; i++) {"+
+                        "if(nodeRanks[i].rank > maxRank){"+
+                            "result.value = nodeRanks[i].client;" +
+                            "maxRank = nodeRanks[i].rank;" +
                         "}" +
                     "}" +
                 "}" +
                 "result;",
-                kafkaServerAddress, "Topic9");
+                kafkaServerAddress, kafkaTopic);
 
         DistributedConsensusFramework consensusFramework = new DistributedConsensusFramework(leaderCandidate);
         consensusFramework.start();
+
         System.out.println(leaderCandidate.getNodeId());
-        int clientRank = (int)(1 + Math.random()*100);
-        System.out.println(clientRank);
-        consensusFramework.writeACommand("clientRanks.push({client:\""+ leaderCandidate.getNodeId() + "\",rank:" +
-                clientRank +"});");
+
+        int nodeRank = (int)(1 + Math.random()*100);
+        System.out.println(nodeRank);
+        consensusFramework.writeACommand("nodeRanks.push({client:\""+ leaderCandidate.getNodeId() + "\",rank:" +
+                nodeRank +"});");
     }
 
     public static void main(String args[]){
-        LeaderCandidate.electLeader(args[0], Integer.parseInt(args[1]),"localhost:9092");
+        LeaderCandidate.electLeader(args[0], Integer.parseInt(args[1]),args[2], args[3]);
     }
 }
