@@ -47,7 +47,7 @@ public class LeaderCandidate extends ConsensusApplication {
 
         int nodeRank = (int)(1 + Math.random()*100);
         System.out.println(nodeRank);
-        consensusFramework.writeACommand("nodeRanks.push({client:\""+ leaderCandidate.getNodeId() + "\",rank:" +
+        consensusFramework.writeACommand("nodeRanks.push({client:\""+ nodeId + "\",rank:" +
                 nodeRank +"});");
     }
 
