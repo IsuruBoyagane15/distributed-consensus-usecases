@@ -6,3 +6,5 @@ Project contains,
 
 1. Leader election
 2. Distributed lock handling
+3. Two Phase Commit
+
