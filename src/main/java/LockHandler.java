@@ -1,6 +1,8 @@
-import dcf.ConsensusApplication;
-import dcf.DistributedConsensusFramework;
+import distributedConsensus.ConsensusApplication;
+import distributedConsensus.DistributedConsensus;
 import org.graalvm.polyglot.Value;
+
+import java.util.UUID;
 
 public class LockHandler extends ConsensusApplication {
     public LockHandler(String nodeId, String runtimeJsCode, String evaluationJsCode, String kafkaServerAddress, String kafkaTopic) {
@@ -14,7 +16,7 @@ public class LockHandler extends ConsensusApplication {
 
     @Override
     public void commitAgreedValue(Value value) {
-        DistributedConsensusFramework framework = new DistributedConsensusFramework(this);
+        DistributedConsensus dcf = DistributedConsensus.getDistributeConsensus(this);
         for (int i=0; i<10; i++){
             System.out.println(this.getNodeId() + " is holding lock.");
             try {
@@ -23,7 +25,8 @@ public class LockHandler extends ConsensusApplication {
                 e.printStackTrace();
             }
         }
-        framework.writeACommand("lockStatuses.delete(\""+ this.getNodeId() + "\"" + ");");
+        dcf.writeACommand("lockStatuses.delete(\""+ this.getNodeId() + "\"" + ");");
+        dcf.setTerminate(true);
     }
 
     public static void handleLock(String nodeId, String kafkaServerAddress, String kafkaTopic){
@@ -34,12 +37,14 @@ public class LockHandler extends ConsensusApplication {
                 "}" +
                 "result;", kafkaServerAddress, kafkaTopic);
 
-        DistributedConsensusFramework framework = new DistributedConsensusFramework(lockHandler);
+        DistributedConsensus
+                framework = DistributedConsensus.getDistributeConsensus(lockHandler);
         framework.start();
         framework.writeACommand("lockStatuses.add(\""+  lockHandler.getNodeId() + "\"" + ");");
     }
 
     public static void main(String[] args){
-        LockHandler.handleLock(args[0], args[1], args[2]);
+        String Id = UUID.randomUUID().toString();
+        LockHandler.handleLock(Id, args[0], args[1]);
     }
 }
